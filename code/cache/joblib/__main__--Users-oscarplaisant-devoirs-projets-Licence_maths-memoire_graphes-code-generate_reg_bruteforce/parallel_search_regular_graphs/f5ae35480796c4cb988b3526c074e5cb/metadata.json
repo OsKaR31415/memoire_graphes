@@ -1,0 +1,1 @@
+{"duration": 0.03578972816467285, "input_args": {"graph_set": "FoundGraphs(<networkx.classes.graph.Graph object at 0x13cf998d0>, <networkx.classes.graph.Graph object at 0x13cf9a150>)", "max_degree": "4", "n_jobs": "2", "verbose": "True"}, "time": 1732574682.569652}
