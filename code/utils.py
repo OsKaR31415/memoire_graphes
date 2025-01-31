@@ -85,9 +85,6 @@ def neighbors_classes(graph: nx.Graph) -> dict[set[int], list[int]]:
         neighbors_classes[neigh] = neighbors_classes.get(neigh, []) + [node]
     return neighbors_classes
 
-
-
-
 # ┏━╸┏━┓┏━┓┏━┓╻ ╻   ╻ ╻╻┏━┓╻ ╻┏━┓╻  ╻┏━┓┏━┓╺┳╸╻┏━┓┏┓╻
 # ┃╺┓┣┳┛┣━┫┣━┛┣━┫   ┃┏┛┃┗━┓┃ ┃┣━┫┃  ┃┗━┓┣━┫ ┃ ┃┃ ┃┃┗┫
 # ┗━┛╹┗╸╹ ╹╹  ╹ ╹   ┗┛ ╹┗━┛┗━┛╹ ╹┗━╸╹┗━┛╹ ╹ ╹ ╹┗━┛╹ ╹

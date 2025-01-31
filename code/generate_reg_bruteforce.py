@@ -206,7 +206,7 @@ def list_regular_graphs(nb_nodes: int,
 
 
 if __name__ == '__main__':
-    NB_NODES = 5
+    NB_NODES = 7
 
     regular_graphs = list_regular_graphs(NB_NODES, verbose=True)
     plot_graphs(regular_graphs,
