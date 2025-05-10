@@ -2,7 +2,8 @@ import networkx as nx
 import numpy as np
 import itertools as it
 
-from graph_manipulation import apply_permutation
+from graph_manipulation import sparse_lexicographic_gt
+
 import scipy as sp
 
 SparseArray = sp.sparse.sparray
@@ -15,5 +16,7 @@ mB = nx.adjacency_matrix(B)
 
 print(mA)
 print(mB)
-print(lexicographic_gt(mA, mB))
+print(sparse_lexicographic_gt(mA, mB))
+
+
 

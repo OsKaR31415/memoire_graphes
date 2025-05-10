@@ -11,20 +11,39 @@ from matplotlib import colormaps as cmaps
 
 from time import time
 
-def duration(function):
-    def aux(*args, **kwargs):
+
+#  __  __ ___ ___  ___
+# |  \/  |_ _/ __|/ __|
+# | |\/| || |\__ \ (__
+# |_|  |_|___|___/\___|
+
+
+
+X = TypeVar
+
+def duration(function: Callable[..., X]) -> Callable[..., tuple[X, float]]:
+    def aux(*args, **kwargs) -> tuple[X, float]:
         dep = time()
         result = function(*args, **kwargs)
         end = time()
         return result, end-dep
     return aux
 
+def sum_of_bits(number: int) -> int:
+    total = 0
+    while number > 0:
+        total += number%2
+        number >>= 1
+    return total
 
-def degrees_array(graph: nx.Graph) -> np.ndarray:
-    """Return a numpy array containing the degrees of each node in the graph."""
-    # return nx.adjacency_matrix(graph).sum(axis=0)  # faster ??
-    return np.array(list(dict(graph.degree).values()))
+#   ___ ___    _   ___ _  _ ___
+#  / __| _ \  /_\ | _ \ || / __|
+# | (_ |   / / _ \|  _/ __ \__ \
+#  \___|_|_\/_/ \_\_| |_||_|___/
 
+# ┏━╸┏━┓┏━┓┏━┓╻ ╻   ╺┳╸┏━╸┏━┓╺┳╸┏━┓
+# ┃╺┓┣┳┛┣━┫┣━┛┣━┫    ┃ ┣╸ ┗━┓ ┃ ┗━┓
+# ┗━┛╹┗╸╹ ╹╹  ╹ ╹    ╹ ┗━╸┗━┛ ╹ ┗━┛
 
 def is_regular(graph: nx.Graph) -> bool | np.bool:
     """Returns True if the graph is regular i.e. all its degrees are equal."""
@@ -32,6 +51,7 @@ def is_regular(graph: nx.Graph) -> bool | np.bool:
         return True
     degrees = degrees_array(graph)
     return np.all(degrees == degrees[0])
+
 
 def is_isomorphic(graph: nx.Graph, other_graph: nx.Graph) -> bool:
     if nx.faster_could_be_isomorphic(graph, other_graph):
@@ -50,16 +70,63 @@ def is_duplicate(possible_duplicate: nx.Graph,
             return True
     return False
 
+
+def can_be_extented_to_regular(graph: nx.Graph, k: int, n: int =-1) -> bool:
+    """Predicate to know if graph can be made into a k-regular graph by adding further edges.
+    Note that this predicate returns False if `graph` is regular.
+    Args:
+        graph (nx.Graph): the graph te examinate.
+        n (int): the number of nodes of the graph. Defaults to None.
+        k (int): the degree of nodes the the potential resulting regular graph.
+    """
+    max_edge = max(graph.edges)
+    if n <= 0:
+        n = max(graph.nodes)
+
+    can_be_extended = True
+
+    # criteria in Remark 2.1.1.
+    if k == 1 and n % 2 == 1:
+        return False
+
+    # criteria in Remark 2.1.1.
+    can_be_extended *= graph.number_of_edges() < n * k // 2
+
+    # criteria in Lemma 3.2.3.
+    max_edge_start_degree = graph.degree[max_edge[0]]
+    if (max_edge[1] > n - k
+            and max_edge_start_degree < k
+            and n - max_edge[1] < k - max_edge_start_degree):
+        return False
+
+    # criteria in Lemma 3.2.4.
+    if (max_edge[0] >= n - k
+            and max_edge_start_degree == k
+            and any(n - max_edge[0] - 1 < k - graph.degree[i]
+                    for i in range(y+1, n+1))):
+        for i in range(y+1, n):
+            if n - max_edge[0] - 1 < k - graph.degree[i]:
+                return False
+
+
+
+
+# ┏━╸┏━┓┏━┓┏━┓╻ ╻   ┏━┓┏━┓┏━┓┏━┓┏━╸┏━┓╺┳╸╻┏━╸┏━┓
+# ┃╺┓┣┳┛┣━┫┣━┛┣━┫   ┣━┛┣┳┛┃ ┃┣━┛┣╸ ┣┳┛ ┃ ┃┣╸ ┗━┓
+# ┗━┛╹┗╸╹ ╹╹  ╹ ╹   ╹  ╹┗╸┗━┛╹  ┗━╸╹┗╸ ╹ ╹┗━╸┗━┛
+
+def degrees_array(graph: nx.Graph) -> np.ndarray:
+    """Return a numpy array containing the degrees of each node in the graph."""
+    # return nx.adjacency_matrix(graph).sum(axis=0)  # faster ??
+    return np.array(degrees_list(graph))
+
+def degrees_list(graph: nx.Graph) -> list:
+    return list(dict(graph.degree).values())
+
+
 def longest_cycle(graph: nx.Graph) -> list:
     return max(nx.simple_cycles(graph), key=len, default=[])
 
-
-def sum_of_bits(number: int) -> int:
-    total = 0
-    while number > 0:
-        total += number%2
-        number >>= 1
-    return total
 
 # @lru_cache(maxsize=1024)
 def graph_hash(graph: nx.Graph) -> int:
@@ -84,6 +151,21 @@ def neighbors_classes(graph: nx.Graph) -> dict[set[int], list[int]]:
         neigh = tuple(sorted(graph.neighbors(node)))  # set of neighbors of node
         neighbors_classes[neigh] = neighbors_classes.get(neigh, []) + [node]
     return neighbors_classes
+
+
+
+# ┏━╸┏━┓┏━┓┏━┓╻ ╻   ┏┳┓┏━┓┏┓╻╻┏━┓╻ ╻╻  ┏━┓╺┳╸╻┏━┓┏┓╻
+# ┃╺┓┣┳┛┣━┫┣━┛┣━┫   ┃┃┃┣━┫┃┗┫┃┣━┛┃ ┃┃  ┣━┫ ┃ ┃┃ ┃┃┗┫
+# ┗━┛╹┗╸╹ ╹╹  ╹ ╹   ╹ ╹╹ ╹╹ ╹╹╹  ┗━┛┗━╸╹ ╹ ╹ ╹┗━┛╹ ╹
+
+
+def graph_with_new_edge(graph: nx.Graph, edge: tuple[int, int]) -> nx.Graph:
+    """Returns a new graph made from *graph* by adding the edge *edge*."""
+    new_graph = graph.copy()
+    new_graph.add_edge(*edge)
+    return new_graph
+
+
 
 # ┏━╸┏━┓┏━┓┏━┓╻ ╻   ╻ ╻╻┏━┓╻ ╻┏━┓╻  ╻┏━┓┏━┓╺┳╸╻┏━┓┏┓╻
 # ┃╺┓┣┳┛┣━┫┣━┛┣━┫   ┃┏┛┃┗━┓┃ ┃┣━┫┃  ┃┗━┓┣━┫ ┃ ┃┃ ┃┃┗┫
