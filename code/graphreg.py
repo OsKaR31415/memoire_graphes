@@ -52,20 +52,22 @@ def ordrek(graph: nx.Graph,
         first_isolated_node (int): The smallest node with degree 0 before the insertion of last_inserted_edge.
 
     """
+    result = []  # list of found graphs
+
     # test if the graph can be extended to a regular graph
     # criteria in Lemma 3.2.3.
     last_inserted_edge_start_degree = graph.degree[last_inserted_edge_x]
     if (last_inserted_edge_y > n - k
             and degrees[last_inserted_edge_x] < k
             and n - last_inserted_edge_y < k - degrees[last_inserted_edge_x]):
-        return # No regular graphs can be created by adding edges
+        return [] # No regular graphs can be created by adding edges
 
     # criteria in Lemma 3.2.4.
     if (last_inserted_edge_x >= n - k
             and last_inserted_edge_start_degree == k):
         for i in range(last_inserted_edge_y+1, n+1): # ]y, n]
             if n - last_inserted_edge_x - 1 < k - degrees[i]:
-                return # No regular graphs can be created by adding edges
+                return [] # No regular graphs can be created by adding edges
 
     new_edge_x = last_inserted_edge_x
     new_edge_y = last_inserted_edge_y
@@ -84,41 +86,53 @@ def ordrek(graph: nx.Graph,
     # if not is_canonical(graph): return
 
     if new_edge_x == n and degrees[new_edge_x] == k:
-        return # TODO: ???
+        print("=>", graph.edges)
+        result.append(graph)
+        # yield graph
 
-    new_edge_y = new_edge_x
-    while new_edge_y < n:
-        new_edge_y += 1
+    # yield graph
+
+    for new_edge_y in range(new_edge_x+1, n):
         if degrees[new_edge_y] < k:
-            print(f"{new_edge_x}-{new_edge_y} {graph.edges}")
             with add_edge_to_graph(graph, degrees, new_edge_x, new_edge_y):
-                print(f"{new_edge_x}-{new_edge_y} {graph.edges}")
-                yield from ordrek(graph=graph,
-                                  degrees=degrees,
-                                  last_inserted_edge_x=new_edge_x,
-                                  last_inserted_edge_y=new_edge_y,
-                                  first_isolated_node=first_isolated_node)
+                recurse = ordrek(graph=graph,
+                                 degrees=degrees,
+                                 last_inserted_edge_x=new_edge_x,
+                                 last_inserted_edge_y=new_edge_y,
+                                 first_isolated_node=first_isolated_node)
+                result.extend(recurse)
+            # yield from recurse
+
+
+    return result
 
 
 @contextmanager
-def add_edge_to_graph(graph, degrees, edge_x, edge_y):
+def add_edge_to_graph(graph: nx.Graph,
+                      degrees: list[int],
+                      edge_x: int, edge_y: int,
+                      verbose: bool=False):
+    if verbose: print(f"{graph.edges} + {edge_x}->{edge_y}")
     graph.add_edge(edge_x, edge_y)
     degrees[edge_x] += 1
     degrees[edge_y] += 1
     try:
         yield
     finally:
-        print(f"removing edge {edge_x}-{edge_y} from graph {graph.edges}")
+        if verbose: print(f"{graph.edges} - {edge_x}->{edge_y}")
+        if not graph.has_edge(edge_x, edge_y):
+            if verbose: print("the edge is not in the graph !")
+            return
         graph.remove_edge(edge_x, edge_y)
         degrees[edge_x] -= 1
         degrees[edge_y] -= 1
-        print(f"we get the graph {graph.edges}")
+        if verbose: (f"=> {graph.edges}")
 
 
 if __name__ == '__main__':
     global n, k
-    n = 5
-    k = 2
+    n = 6
+    k = 3
 
     G = nx.Graph([(1, 2)])
     G.add_nodes_from(range(1, n+1))
@@ -127,6 +141,12 @@ if __name__ == '__main__':
     O = ordrek(G, dict(G.degree), 1, 2, 3)
 
     for g in O:
-        print("-->", g.edges)
+        if is_regular(g):
+            print("-->", g.edges)
+        else:
+            print(".", end="")
+
+    print()
+
 
 

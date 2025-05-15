@@ -121,7 +121,7 @@ def degrees_array(graph: nx.Graph) -> np.ndarray:
     return np.array(degrees_list(graph))
 
 def degrees_list(graph: nx.Graph) -> list:
-    return list(dict(graph.degree).values())
+    return list(dict(graph.degree))
 
 
 def longest_cycle(graph: nx.Graph) -> list:
