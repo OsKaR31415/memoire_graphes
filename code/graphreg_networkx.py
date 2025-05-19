@@ -1,4 +1,5 @@
 import networkx as nx
+import numpy as np
 from contextlib import contextmanager
 from utils import graph_with_new_edge, is_regular, can_be_extented_to_regular, degrees_list
 
@@ -56,18 +57,18 @@ def ordrek(graph: nx.Graph,
 
     # test if the graph can be extended to a regular graph
     # criteria in Lemma 3.2.3.
-    last_inserted_edge_start_degree = graph.degree[last_inserted_edge_x]
+    last_inserted_edge_start_degree = degrees[last_inserted_edge_x]
     if (last_inserted_edge_y > n - k
             and degrees[last_inserted_edge_x] < k
             and n - last_inserted_edge_y < k - degrees[last_inserted_edge_x]):
         return [] # No regular graphs can be created by adding edges
 
-    # criteria in Lemma 3.2.4.
-    if (last_inserted_edge_x >= n - k
-            and last_inserted_edge_start_degree == k):
-        for i in range(last_inserted_edge_y+1, n+1): # ]y, n]
-            if n - last_inserted_edge_x - 1 < k - degrees[i]:
-                return [] # No regular graphs can be created by adding edges
+    # # criteria in Lemma 3.2.4.
+    # if (last_inserted_edge_x >= n - k
+    #         and last_inserted_edge_start_degree == k):
+    #     for i in range(last_inserted_edge_y+1, n+1): # ]y, n]
+    #         if n - last_inserted_edge_x - 1 < k - degrees[i]:
+    #             return [] # No regular graphs can be created by adding edges
 
     new_edge_x = last_inserted_edge_x
     new_edge_y = last_inserted_edge_y
@@ -80,27 +81,35 @@ def ordrek(graph: nx.Graph,
         first_isolated_node = new_edge_y + 1
 
     if new_edge_x == first_isolated_node:
-        return # No regular graphs can be created by adding edges
+        return [] # No regular graphs can be created by adding edges
 
     # TODO: implement canonicity test
     # if not is_canonical(graph): return
 
     if new_edge_x == n and degrees[new_edge_x] == k:
-        print("=>", graph.edges)
+        print("=>", graph)
         result.append(graph)
         # yield graph
 
     # yield graph
 
     for new_edge_y in range(new_edge_x+1, n):
+        print(new_edge_y)
         if degrees[new_edge_y] < k:
-            with add_edge_to_graph(graph, degrees, new_edge_x, new_edge_y):
-                recurse = ordrek(graph=graph,
-                                 degrees=degrees,
-                                 last_inserted_edge_x=new_edge_x,
-                                 last_inserted_edge_y=new_edge_y,
-                                 first_isolated_node=first_isolated_node)
-                result.extend(recurse)
+            graph[new_edge_x][new_edge_y] = 1
+            graph[new_edge_y][new_edge_x] = 1
+            degrees[new_edge_x] += 1
+            degrees[new_edge_y] += 1
+            recurse = ordrek(graph=graph,
+                             degrees=degrees,
+                             last_inserted_edge_x=new_edge_x,
+                             last_inserted_edge_y=new_edge_y,
+                             first_isolated_node=first_isolated_node)
+            result.extend(recurse)
+            graph[new_edge_x][new_edge_y] = 0
+            graph[new_edge_y][new_edge_x] = 0
+            degrees[new_edge_x] -= 1
+            degrees[new_edge_y] -= 1
             # yield from recurse
 
 
@@ -138,11 +147,21 @@ if __name__ == '__main__':
     G.add_nodes_from(range(1, n+1))
 
 
-    O = ordrek(G, dict(G.degree), 1, 2, 3)
+
+    G = np.array([
+        [0, 1, 0, 0, 0],
+        [1, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+        [0, 0, 0, 0, 0],
+                  ])
+
+    O = ordrek(G, G.sum(axis=0), 0, 1, 3)
+
 
     for g in O:
         if is_regular(g):
-            print("-->", g.edges)
+            print("-->", g)
         else:
             print(".", end="")
 
