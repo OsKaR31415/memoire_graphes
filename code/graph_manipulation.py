@@ -1,4 +1,4 @@
-# from typing import 
+from typing import Any
 import networkx as nx
 import numpy as np
 from numpy.typing import NDArray
@@ -9,7 +9,22 @@ SparseArray = sp.sparse.sparray
 # ┏━┓╺┳┓ ┏┓┏━┓┏━╸┏━╸┏┓╻┏━╸╻ ╻   ┏┳┓┏━┓╺┳╸┏━┓╻┏━╸┏━╸┏━┓
 # ┣━┫ ┃┃  ┃┣━┫┃  ┣╸ ┃┗┫┃  ┗┳┛   ┃┃┃┣━┫ ┃ ┣┳┛┃┃  ┣╸ ┗━┓
 # ╹ ╹╺┻┛┗━┛╹ ╹┗━╸┗━╸╹ ╹┗━╸ ╹    ╹ ╹╹ ╹ ╹ ╹┗╸╹┗━╸┗━╸┗━┛
-def apply_permutation(perm: tuple[int], matrix: np.ndarray) -> np.ndarray:
+
+def insert_edge(graph: np.ndarray, dep: int, end: int) -> None:
+    """Insert the edge dep-end into the given adjacency matrix."""
+    graph[dep][end] = 1
+    graph[end][dep] = 1
+
+def remove_edge(graph: np.ndarray, dep: int, end: int) -> None:
+    """Remove the edge dep-end from the given adjacency matrix."""
+    graph[dep][end] = 0
+    graph[end][dep] = 0
+
+def degrees_of(graph: np.ndarray) -> np.ndarray[Any, int]:
+    """Return the array of degrees of each node of the given graph"""
+    return graph.sum(axis=0)
+
+def apply_permutation(perm: tuple[int, ...], matrix: np.ndarray) -> np.ndarray:
     return (matrix[perm, :])[:, perm]
 
 def sparse_adj_to_canonical(mat: SparseArray) -> np.ndarray:
@@ -32,7 +47,7 @@ def np_lexicographic_gt(a: NDArray[np.int32], b: NDArray[np.int32]) -> np.bool_:
             b = np.pad(b, (0, a.size - b.size))
     # index of the first non-matching elements
     # idx = np.where(a != b)[0][0]
-    idx = np.where((a > b) != (a < b))[0][0]  # version that handles NaN
+    idx = np.nonzero((a > b) != (a < b))[0][0]  # version that handles NaN
     # compare arrays at their first different value
     return a[idx] > b[idx]
 

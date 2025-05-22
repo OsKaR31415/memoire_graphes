@@ -43,7 +43,7 @@ def ordrek(graph: nx.Graph,
            degrees: list[int],
            last_inserted_edge_x: int,
            last_inserted_edge_y: int,
-           first_isolated_node: int):
+           jirst_isolated_node: int):
     """
     Args:
         graph (nx.Graph):
@@ -64,11 +64,11 @@ def ordrek(graph: nx.Graph,
         return [] # No regular graphs can be created by adding edges
 
     # # criteria in Lemma 3.2.4.
-    # if (last_inserted_edge_x >= n - k
-    #         and last_inserted_edge_start_degree == k):
-    #     for i in range(last_inserted_edge_y+1, n+1): # ]y, n]
-    #         if n - last_inserted_edge_x - 1 < k - degrees[i]:
-    #             return [] # No regular graphs can be created by adding edges
+    if (last_inserted_edge_x >= n - k
+            and last_inserted_edge_start_degree == k):
+        for i in range(last_inserted_edge_y+1, n+1): # ]y, n]
+            if n - last_inserted_edge_x - 1 < k - degrees[i]:
+                return [] # No regular graphs can be created by adding edges
 
     new_edge_x = last_inserted_edge_x
     new_edge_y = last_inserted_edge_y

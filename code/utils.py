@@ -41,6 +41,14 @@ def sum_of_bits(number: int) -> int:
 # | (_ |   / / _ \|  _/ __ \__ \
 #  \___|_|_\/_/ \_\_| |_||_|___/
 
+def print_madj(madj: np.ndarray) -> None:
+    """Prettier printing of adjacency matrices"""
+    res = ' ' + ''.join(map(lambda n: str(n%10), range(len(madj))))
+    for idx, line in enumerate(madj):
+        res += f'\n{idx%10}' + ''.join('█' if n else ' ' if i%2 else '░' for i, n in enumerate(line))
+    print(res)
+
+
 # ┏━╸┏━┓┏━┓┏━┓╻ ╻   ╺┳╸┏━╸┏━┓╺┳╸┏━┓
 # ┃╺┓┣┳┛┣━┫┣━┛┣━┫    ┃ ┣╸ ┗━┓ ┃ ┗━┓
 # ┗━┛╹┗╸╹ ╹╹  ╹ ╹    ╹ ┗━╸┗━┛ ╹ ┗━┛
