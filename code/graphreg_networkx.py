@@ -43,7 +43,7 @@ def ordrek(graph: nx.Graph,
            degrees: list[int],
            last_inserted_edge_x: int,
            last_inserted_edge_y: int,
-           jirst_isolated_node: int):
+           first_isolated_node: int):
     """
     Args:
         graph (nx.Graph):

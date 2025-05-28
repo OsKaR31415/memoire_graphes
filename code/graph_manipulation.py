@@ -12,17 +12,21 @@ SparseArray = sp.sparse.sparray
 
 def insert_edge(graph: np.ndarray, dep: int, end: int) -> None:
     """Insert the edge dep-end into the given adjacency matrix."""
-    graph[dep][end] = 1
-    graph[end][dep] = 1
+    graph[dep,end] = np.True_
+    graph[end,dep] = np.True_
 
 def remove_edge(graph: np.ndarray, dep: int, end: int) -> None:
     """Remove the edge dep-end from the given adjacency matrix."""
-    graph[dep][end] = 0
-    graph[end][dep] = 0
+    graph[dep,end] = np.False_
+    graph[end,dep] = np.False_
 
 def degrees_of(graph: np.ndarray) -> np.ndarray[Any, int]:
     """Return the array of degrees of each node of the given graph"""
     return graph.sum(axis=0)
+
+def is_regular(graph: np.ndarray) -> np.bool_:
+    degrees = degrees_of(graph)
+    return np.all(degrees == degrees[0])
 
 def apply_permutation(perm: tuple[int, ...], matrix: np.ndarray) -> np.ndarray:
     return (matrix[perm, :])[:, perm]

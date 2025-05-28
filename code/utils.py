@@ -36,6 +36,11 @@ def sum_of_bits(number: int) -> int:
         number >>= 1
     return total
 
+def permutation_product(a, b):
+    new_permutation = np.array(a).copy()
+    return np.array(a).copy()[b]
+
+
 #   ___ ___    _   ___ _  _ ___
 #  / __| _ \  /_\ | _ \ || / __|
 # | (_ |   / / _ \|  _/ __ \__ \
@@ -244,4 +249,7 @@ def plot_graphs(graph_list: Iterable[nx.Graph],
         plt.savefig(figpath)
 
     plt.show(block=True)
+
+
+
 
